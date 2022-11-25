@@ -1,8 +1,8 @@
 const { Sequelize } = require("sequelize");
 const Account = require("./Account");
 
-
-const dialect = `sqlite::${__dirname}/db.sqlite`;
+const dirname = process.env.platform === 'win32' ? __dirname.substring(2) : __dirname;
+const dialect = `sqlite::${dirname}/db.sqlite`;
 const sequelize = new Sequelize(dialect, { logging: false });
 
 async function init() {
