@@ -166,7 +166,7 @@ app.listen(PORT, async () => {
    await initDB();
    console.log('DB initialized');
 
-   web3 = new Web3('http://localhost:8545');
+   web3 = new Web3(process.env.WEB3_URL);
    console.log('Blockchain initialized');
    
 })
