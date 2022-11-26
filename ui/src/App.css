@@ -1,0 +1,27 @@
+
+
+.page {
+	position: fixed;
+	top: var(--navbar-height);
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow-y: auto;
+}
+
+
+.vh-align, .vhalign {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.v-align .valign {
+	display: flex;
+	align-items: center;
+	
+}
+
+.center-align {
+	text-align: center;
+}

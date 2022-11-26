@@ -3,8 +3,8 @@ const Storage = artifacts.require("Storage");
 
 module.exports = async function(deployer) {
   // Command Truffle to deploy the Smart Contract
-  const res = await deployer.deploy(Storage, "XAVITOKEN", "XVT", 0, 2000000);
+  const res = await deployer.deploy(Storage);
 
-  console.log(res);
+  console.log({ res });
   
 };
