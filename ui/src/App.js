@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { Component } from 'react';
+import './App.css';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+
+
+
+class App extends Component {
+
+  setWindowDimensions = () => {
+    
+    const height = window.innerHeight + 'px';
+    const width = window.innerWidth + 'px';
+
+    document.documentElement.style.setProperty('--window-height', height);
+    document.documentElement.style.setProperty('--window-width', width);
+
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.setWindowDimensions);
+  }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.setWindowDimensions)
+    this.setWindowDimensions();
+  }
+
+  render() {
+    return (
+      <>
+        <Navbar />
+
+        <Home />
+      </>
+    );
+  }
+
 }
 
 export default App;
