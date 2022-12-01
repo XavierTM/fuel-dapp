@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test mocha --ui tdd --exit",
     "start": "node .",
     "dev": "nodemon ."
   },
@@ -28,6 +28,7 @@
   "devDependencies": {
     "casual": "^1.6.2",
     "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
     "mocha": "^10.1.0"
   }
 }

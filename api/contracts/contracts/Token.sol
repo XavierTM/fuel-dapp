@@ -12,6 +12,8 @@ contract Token {
     uint256 public decimals;
     uint256 public totalSupply;
 
+    address public mainAccount;
+
     // Keep track balances and allowances approved
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
@@ -26,6 +28,7 @@ contract Token {
         decimals = _decimals;
         totalSupply = _totalSupply; 
         balanceOf[msg.sender] = totalSupply;
+        mainAccount = msg.sender;
     }
 
     /// @notice transfer amount of tokens to an address
@@ -46,6 +49,21 @@ contract Token {
     //  Emit Transfer Event event 
     function _transfer(address _from, address _to, uint256 _value) internal {
         // Ensure sending is to valid address! 0x0 address cane be used to burn() 
+        require(_to != address(0));
+        balanceOf[_from] = balanceOf[_from] - (_value);
+        balanceOf[_to] = balanceOf[_to] + (_value);
+        emit Transfer(_from, _to, _value);
+    }
+
+    /// @dev internal helper transfer function with required safety checks
+    /// @param _from, where funds coming the sender
+    /// @param _to receiver of token
+    /// @param _value amount value of token to send
+    // Internal function transfer can only be called by this contract
+    //  Emit Transfer Event event 
+    function transferOnBehalf(address _from, address _to, uint256 _value) external {
+        // Ensure sending is to valid address! 0x0 address cane be used to burn()
+        require(msg.sender == mainAccount);
         require(_to != address(0));
         balanceOf[_from] = balanceOf[_from] - (_value);
         balanceOf[_to] = balanceOf[_to] + (_value);

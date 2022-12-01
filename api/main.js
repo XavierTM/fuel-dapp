@@ -9,9 +9,8 @@ const Joi = require('@xavisoft/joi');
 const Web3 = require("web3");
 const { init: initDB } = require('./db');
 const Account = require('./db/Account');
-const { BALANCE_OF_ABI, TRANSFER_ABI } = require('./constants');
-const Tx = require('ethereumjs-tx');
-const { transferTokens } = require('./utils');
+const { TOKEN_CONTRACT_ABI } = require('./constants');
+const { transferTokens, getBalance } = require('./utils');
 
 
 const app = express();
@@ -48,7 +47,7 @@ app.post('/api/accounts', async (req, res) => {
       });
 
       res.send({
-         address,
+         account: address,
          private_key,
       });
 
@@ -58,18 +57,27 @@ app.post('/api/accounts', async (req, res) => {
    }
 });
 
-app.get('/api/accounts/:account/balance', async (req, res) => {
+app.get('/api/accounts/:account', async (req, res) => {
 
    try {
       
       const { account } = req.params;
 
-      const tokenContractAddress = process.env.TOKEN_CONTRACT_ADDRESS;
-      const contract = new web3.eth.Contract(BALANCE_OF_ABI, tokenContractAddress);
-      const balance = await contract.methods.balanceOf(account).call();
+      // get balance
+      let balance = await getBalance({ web3, account });
+      balance = parseFloat(balance);
+
+      // get account type
+      const dbAccount = await Account.findOne({ where: { account }});
+
+      if (!dbAccount)
+         return res.sendStatus(404)
+
+      const account_type = dbAccount.type;
 
       res.send({
-         balance
+         balance,
+         account_type,
       });
 
    } catch (err) {
@@ -81,6 +89,7 @@ app.post('/api/accounts/:account/transfer', async (req, res) => {
 
    try {
 
+
       // validation
       /// authish
       let privateKey = req.headers['x-private-key'];
@@ -91,7 +100,7 @@ app.post('/api/accounts/:account/transfer', async (req, res) => {
       /// body
       const schema = {
          tokens: Joi.number().min(0).required(),
-         recepient: Joi.string().required()
+         recipient: Joi.string().required()
       }
 
       const error = Joi.getError(req.body, schema);
@@ -99,9 +108,12 @@ app.post('/api/accounts/:account/transfer', async (req, res) => {
          return res.status(400).send(error);
       
       // transfer 
-      const { recepient, tokens } = req.body;
+      const { recipient, tokens } = req.body;
       const { account } = req.params;
-      await transferTokens({ web3, tokens, account, privateKey, recepient });
+      const transferred = await transferTokens({ web3, tokens, account, privateKey, recipient });
+
+      if (!transferred)
+         return res.sendStatus(401)
 
       res.send();
 
@@ -110,7 +122,7 @@ app.post('/api/accounts/:account/transfer', async (req, res) => {
    }
 });
 
-app.post('/api/accounts/:account/widthdraw', async (req, res) => {
+app.post('/api/accounts/:account/withdrawal', async (req, res) => {
 
    try {
 
@@ -145,8 +157,11 @@ app.post('/api/accounts/:account/widthdraw', async (req, res) => {
 
       // transfer 
       const { tokens } = req.body;
-      const recepient = process.env.MAIN_ACCOUNT;
-      await transferTokens({ web3, tokens, account, privateKey, recepient });
+      const recipient = process.env.MAIN_ACCOUNT;
+      const transferred = await transferTokens({ web3, tokens, account, privateKey, recipient });
+
+      if (!transferred)
+         return res.sendStatus(401)
 
       res.send();
 
@@ -159,14 +174,36 @@ app.post('/api/accounts/:account/widthdraw', async (req, res) => {
 // initialization
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, async () => {
+function init() {
 
-   console.log("Server started at PORT", PORT);
+   return new Promise((resolve, reject) => {
+      app.listen(PORT, async () => {
 
-   await initDB();
-   console.log('DB initialized');
+         try {
+            console.log("Server started at PORT", PORT);
+         
+            await initDB();
+            console.log('DB initialized');
+         
+            web3 = new Web3(new Web3.providers.HttpProvider(process.env.WEB3_URL));
+            console.log('Blockchain initialized');
 
-   web3 = new Web3(process.env.WEB3_URL);
-   console.log('Blockchain initialized');
-   
-})
+            resolve();
+
+         } catch (err) {
+            reject(err);
+         }
+         
+      });
+
+   });
+}
+
+
+if (process.env.NODE_ENV !== 'test')
+   init();
+
+module.exports = {
+   app,
+   init
+};
