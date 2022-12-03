@@ -12,6 +12,14 @@ async function init() {
 
    await sequelize.sync({ force });
 
+   // make main account a company
+   try {
+      const account = process.env.MAIN_ACCOUNT;
+      const type = 'company';
+
+      await Account.create({ account, type });
+   } catch {}
+
 }
 
 module.exports = {

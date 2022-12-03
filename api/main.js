@@ -2,6 +2,8 @@ console.clear();
 
 
 require('dotenv').config();
+require('./env');
+
 const express = require('express');
 const morgan = require('morgan');
 const status_500 = require('./status_500');
@@ -10,14 +12,14 @@ const Web3 = require("web3");
 const { init: initDB } = require('./db');
 const Account = require('./db/Account');
 const { TOKEN_CONTRACT_ABI } = require('./constants');
-const { transferTokens, getBalance } = require('./utils');
+const { transferTokens, getBalance, privateKeyToAccount } = require('./utils');
 
 
 const app = express();
 let web3;
 
 // middlewares
-app.use(morgan('combined'));
+app.use(morgan('dev'));
 app.use(express.json());
 
 // routes
@@ -164,6 +166,54 @@ app.post('/api/accounts/:account/withdrawal', async (req, res) => {
          return res.sendStatus(401)
 
       res.send();
+
+   } catch (err) {
+      status_500(err, res);
+   }
+});
+
+app.post('/api/login', async (req, res) => {
+
+   try {
+
+      // validation
+      const schema = {
+         private_key: Joi.string().required(),
+      }
+
+      const error = Joi.getError(req.body, schema);
+      if (error)
+         return res.status(400).send(error);
+
+      // get account 
+      const privateKey = req.body.private_key;
+      const account = await privateKeyToAccount({ web3, privateKey });
+
+      if (!account)
+         return res.sendStatus(401);
+     
+
+      // get account details
+      const dbAccount = await Account.findOne({ where: { account }});
+
+      if (!dbAccount)
+         return res.sendStatus(404);
+
+      const { type: account_type } = dbAccount;
+
+      // get account balance
+      const balance = await getBalance({ web3, account });
+
+
+      // respond
+      res.send({
+         account,
+         account_type,
+         balance
+      });
+
+
+      
 
    } catch (err) {
       status_500(err, res);

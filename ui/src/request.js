@@ -5,7 +5,9 @@ import { getAccountDetails } from './utils';
 axios.interceptors.request.use(config => {
    
    const details = getAccountDetails();
-   config.headers['x-private-key'] = details.private_key;
+
+   if (details)
+      config.headers['x-private-key'] = details.private_key;
 
    return config;
 });

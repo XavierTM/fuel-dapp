@@ -13,8 +13,13 @@ function storeAccountDetails(details) {
    window.localStorage.setItem(ACCOUNT_DETAILS_STORAGE_KEY, json);
 }
 
+function deleteAccountDetails() {
+   window.localStorage.removeItem(ACCOUNT_DETAILS_STORAGE_KEY);
+}
+
 
 export {
+   deleteAccountDetails,
    getAccountDetails,
    storeAccountDetails,
 }

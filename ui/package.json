@@ -19,6 +19,7 @@
     "react-dom": "^18.2.0",
     "react-qr-code": "^2.0.8",
     "react-scripts": "5.0.1",
+    "sweetalert": "^2.1.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -45,5 +46,6 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "."
+  "homepage": ".",
+  "proxy": "http://localhost:8080"
 }

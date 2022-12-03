@@ -17,8 +17,7 @@ async function transferTokens({
    const mainAccountPrivateKey = process.env.MAIN_ACCOUNT_PRIVATE_KEY;
 
    if (mainAccountPrivateKey !== privateKey) {
-      const res = await web3.eth.accounts.privateKeyToAccount(privateKey);
-      const derivedAccount = res.address;
+      const derivedAccount = await privateKeyToAccount({ web3, privateKey });
 
       if (derivedAccount !== account)
          return false;
@@ -82,11 +81,16 @@ async function getBalance({ web3, account }) {
    const contract = new web3.eth.Contract(TOKEN_CONTRACT_ABI, tokenContractAddress);
    const balance = await contract.methods.balanceOf(account).call();
 
-   return balance;
+   return parseFloat(balance);
 }
 
+async function privateKeyToAccount({ web3, privateKey }) {
+   const res = await web3.eth.accounts.privateKeyToAccount(privateKey);
+   return res.address;
+}
 
 module.exports = {
    getBalance,
+   privateKeyToAccount,
    transferTokens
 }

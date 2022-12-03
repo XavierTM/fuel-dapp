@@ -44,6 +44,19 @@ suite("Business logic", function () {
         
     });
 
+
+    test('Login', async () => {
+
+        const payload = { private_key: privateKey };
+        const res = await requester.post('/api/login').send(payload);
+
+        assert.equal(res.status, 200);
+        assert.isNumber(res.body.balance);
+        assert.isString(res.body.account);
+        assert.isString(res.body.account_type);
+        
+    })
+
     test('Retrieve account info', async () => {
 
         const res = await requester.get(`/api/accounts/${account}`).send();
