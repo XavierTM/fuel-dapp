@@ -4,6 +4,7 @@ console.clear();
 require('dotenv').config();
 require('./env');
 
+const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const status_500 = require('./status_500');
@@ -20,6 +21,7 @@ let web3;
 
 // middlewares
 app.use(morgan('dev'));
+app.use(cors());
 app.use(express.json());
 
 // routes
