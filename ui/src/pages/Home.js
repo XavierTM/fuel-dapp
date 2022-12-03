@@ -4,6 +4,7 @@ import QRCode from 'react-qr-code';
 import TextField from '@mui/material/TextField';
 import { Button, Fab } from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { deleteAccountDetails, getAccountDetails, storeAccountDetails } from "../utils";
 import SelectAccountType from "../components/SelectAccountType";
 import { hideLoading, showLoading } from '../loading';
@@ -77,6 +78,26 @@ class Home extends Component {
       });
    }
 
+
+   scanAccount = async () => {
+
+      const codescanner = window.codescanner;
+      
+      if (!codescanner)
+         return errorToast('Scanning feature not yet available');
+
+      try {
+
+         await codescanner.start();
+         const code = await codescanner.scan();
+         document.getElementById('txt-recipient').value = code;
+         
+      } catch(err) {
+         errorToast(err.message);
+      } finally {
+         await codescanner.stop();
+      }
+   }
 
    transfer = async () => {
 
@@ -340,7 +361,7 @@ class Home extends Component {
                <div className="vh-align" style={{ fontFamily: 'sans-serif' }}>
                   <div className="center-align">
 
-                     <h2>Your Balance</h2>
+                     <h2 className="grey-text">Your Balance</h2>
 
                      <div style={{ fontWeight: 'bold', fontSize: 24 }}>
                         {this.state.balance}
@@ -348,6 +369,10 @@ class Home extends Component {
                      <div style={{ fontSize: 14, color: 'grey' }}>
                         TOKENS
                      </div>
+
+                     <Button onClick={this.fetchAccountDetails} size="large">
+                        <RefreshIcon fontSize="large" />
+                     </Button>
                   </div>
                </div>
 
@@ -397,7 +422,7 @@ class Home extends Component {
                         }}
                      />
 
-                     <Button variant="text" fullWidth style={{ fontSize: 13 }}>
+                     <Button variant="text" fullWidth style={{ fontSize: 13 }} onClick={this.scanAccount}>
                         SCAN INSTEAD
                      </Button>
 

@@ -47,5 +47,6 @@
     ]
   },
   "homepage": ".",
-  "proxy": "http://localhost:8080"
+  "_proxy": "http://localhost:8080",
+  "proxy": "https://fuel-dapp.xavisoft.co.zw"
 }
