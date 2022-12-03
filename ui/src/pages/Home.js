@@ -17,7 +17,8 @@ import swal from 'sweetalert';
 const pageCss = css({
    '& > div': {
       borderBottom: '1px #ccc solid',
-      height: 'calc((var(--window-height) - var(--navbar-height)) / 3)',
+      // height: 'calc((var(--window-height) - var(--navbar-height)) / 3)',
+      padding: '100px 0'
    },
 })
 
@@ -329,10 +330,10 @@ class Home extends Component {
             if (this.state.account_type === 'company') {
                withdrawJSX = <div className="vh-align">
 
-                  <div className="center-align" style={{ width: 300 }}>
+                  <div className="center-align" style={{ width: 200 }}>
 
 
-                     <h2>Withdraw your money</h2>
+                     <h2 className="grey-text">Withdraw your money</h2>
 
                      <TextField
                         variant="standard"
@@ -377,7 +378,7 @@ class Home extends Component {
                </div>
 
                <div className="vh-align">
-                  <div style={{ width: '60%'}} className="center-align">
+                  <div style={{ maxWidth: 250 }} className="center-align">
 
                      <h2 style={{ color: 'gray' }}>Your Account Number</h2>
 
@@ -387,7 +388,7 @@ class Home extends Component {
                         size={150}
                      />
 
-                     <h5 style={{ color: 'grey' }}>
+                     <h5 style={{ color: 'grey', fontSize: 10 }}>
                         <code>
                            {this.state.account}
                         </code>
@@ -398,9 +399,9 @@ class Home extends Component {
 
                <div className="vh-align">
 
-                  <div style={{ width: 300 }}>
+                  <div style={{ width: 200 }}>
 
-                     <h2 className="center-align">Transfer Tokens</h2>
+                     <h2 className="center-align grey-text">Transfer Tokens</h2>
 
                      <TextField
                         placeholder="RECIPIENT ACCOUNT"
