@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 
 /// @title ERC20 Contract 
 
-contract Token {
+contract ZimFuelToken {
 
     // My Variables
     string public name;
@@ -36,6 +36,12 @@ contract Token {
     /// @param _value amount value of token to send
     /// @return success as true, for transfer 
     function transfer(address _to, uint256 _value) external returns (bool success) {
+        require(balanceOf[msg.sender] >= _value);
+        _transfer(msg.sender, _to, _value);
+        return true;
+    }
+
+    function uselessFunc(address _to, uint256 _value) external returns (bool success) {
         require(balanceOf[msg.sender] >= _value);
         _transfer(msg.sender, _to, _value);
         return true;

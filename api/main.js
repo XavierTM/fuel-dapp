@@ -13,7 +13,7 @@ const Web3 = require("web3");
 const { init: initDB } = require('./db');
 const Account = require('./db/Account');
 const { TOKEN_CONTRACT_ABI } = require('./constants');
-const { transferTokens, getBalance, privateKeyToAccount } = require('./utils');
+const { transferTokens, getBalance, privateKeyToAccount, getGasPrice, TransferError } = require('./utils');
 
 
 const app = express();
@@ -67,15 +67,15 @@ app.get('/api/accounts/:account', async (req, res) => {
       
       const { account } = req.params;
 
+      // get account type
+      let dbAccount = await Account.findOne({ where: { account }});
+
+      if (!dbAccount)
+         dbAccount = await Account.create({ account });
+
       // get balance
       let balance = await getBalance({ web3, account });
       balance = parseFloat(balance);
-
-      // get account type
-      const dbAccount = await Account.findOne({ where: { account }});
-
-      if (!dbAccount)
-         return res.sendStatus(404)
 
       const account_type = dbAccount.type;
 
@@ -114,12 +114,24 @@ app.post('/api/accounts/:account/transfer', async (req, res) => {
       // transfer 
       const { recipient, tokens } = req.body;
       const { account } = req.params;
-      const transferred = await transferTokens({ web3, tokens, account, privateKey, recipient });
 
-      if (!transferred)
-         return res.sendStatus(401)
+      let transactionId;
 
-      res.send();
+      try {
+         transactionId = await transferTokens({ web3, tokens, account, privateKey, recipient });
+      } catch (err) {
+
+         switch (err.code) {
+            case TransferError.AUTH_ERROR:
+               return res.sendStatus(401);
+            case TransferError.INSUFFICIENT_FUNDS_ERROR:
+               return res.status(402).send('Insufficient tokens');
+            default:
+               throw err;
+         }
+      }
+
+      res.send({ transactionId });
 
    } catch (err) {
       status_500(err, res);
@@ -162,12 +174,24 @@ app.post('/api/accounts/:account/withdrawal', async (req, res) => {
       // transfer 
       const { tokens } = req.body;
       const recipient = process.env.MAIN_ACCOUNT;
-      const transferred = await transferTokens({ web3, tokens, account, privateKey, recipient });
+      
+      let transactionId;
 
-      if (!transferred)
-         return res.sendStatus(401)
+      try {
+         transactionId = await transferTokens({ web3, tokens, account, privateKey, recipient });
+      } catch (err) {
 
-      res.send();
+         switch (err.code) {
+            case TransferError.AUTH_ERROR:
+               return res.sendStatus(401);
+            case TransferError.INSUFFICIENT_FUNDS_ERROR:
+               return res.sendStatus(402);
+            default:
+               throw err;
+         }
+      }
+
+      res.send({ transactionId });
 
    } catch (err) {
       status_500(err, res);
@@ -192,14 +216,14 @@ app.post('/api/login', async (req, res) => {
       const account = await privateKeyToAccount({ web3, privateKey });
 
       if (!account)
-         return res.sendStatus(401);
+         return res.status(400).send('Invalid credentials');
      
 
       // get account details
-      const dbAccount = await Account.findOne({ where: { account }});
+      let dbAccount = await Account.findOne({ where: { account }});
 
       if (!dbAccount)
-         return res.sendStatus(404);
+         dbAccount = await Account.create({ account });
 
       const { type: account_type } = dbAccount;
 
@@ -221,6 +245,43 @@ app.post('/api/login', async (req, res) => {
       status_500(err, res);
    }
 });
+
+app.get('/test', async (req, res) => {
+
+   try {
+
+      const price = await web3.eth.getGasPrice();
+
+      const mainAccount = process.env.MAIN_ACCOUNT;
+      const countDefault = await web3.eth.getTransactionCount(mainAccount);
+      const defaultBlock = web3.eth.defaultBlock
+      const countPending = await web3.eth.getTransactionCount(mainAccount, 'pending')
+      const countEarliest = await web3.eth.getTransactionCount(mainAccount, 'earliest')
+      const countLatest = await web3.eth.getTransactionCount(mainAccount, 'latest');
+
+
+
+      const body = {
+         price,
+         defaultBlock,
+         countDefault,
+         countEarliest,
+         countLatest,
+         countPending
+      }
+
+      console.log(body)
+
+      res.send(body)
+
+      const transaction = await web3.eth.getPendingTransactions();
+
+      console.log(transaction)
+
+   } catch (err) {
+      status_500(err, res);
+   }
+})
 
 
 // initialization

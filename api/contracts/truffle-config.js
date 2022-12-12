@@ -1,3 +1,6 @@
+
+console.clear()
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -46,6 +49,42 @@
 
 // const HDWalletProvider = require('@truffle/hdwallet-provider');
 
+require('dotenv').config({
+  path: '../.env'
+});
+require('../env');
+
+
+let goerli, development;
+const PRIVATE_KEY = process.env.MAIN_ACCOUNT_PRIVATE_KEY;
+const GOERLI_URL = process.env.GOERLI_URL;
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+
+
+if (process.env.NODE_ENV === 'production') {
+
+  goerli = {
+    network_id: "5",
+    provider: () => new HDWalletProvider({
+      privateKeys: [ PRIVATE_KEY ],
+      providerOrUrl: GOERLI_URL,
+    }),
+    networkCheckTimeout: 10 * 60 * 1000,
+    gas: 5500000,        // Ropsten has a lower block limit than mainnet
+    confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+    timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+    skipDryRun: true, 
+  }
+
+} else {
+
+  development = {
+    host: "127.0.0.1",     // Localhost (default: none)
+    port: 8545,            // Standard Ethereum port (default: none)
+    network_id: "1234",       // Any network (default: none)
+  }
+}
+
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
@@ -64,12 +103,10 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    development: {
-     host: "127.0.0.1",     // Localhost (default: none)
-     port: 8545,            // Standard Ethereum port (default: none)
-     network_id: "1234",       // Any network (default: none)
-    },
-    
+
+    development,
+    goerli,
+
     // An additional network, but with some advanced options…
     // advanced: {
     //   port: 8777,             // Custom port
@@ -83,11 +120,13 @@ module.exports = {
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
     // goerli: {
-    //   provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
+    //   provider: () => new HDWalletProvider(process.env.MAIN_ACCOUNT_MNEMONIC, process.env.WEB3_URL),
+    //   // url: process.env.WEB3_URL,
     //   network_id: 5,       // Goerli's id
     //   confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
     //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    //   skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
+    //   networkCheckTimeout: 30000
     // },
     //
     // Useful for private networks

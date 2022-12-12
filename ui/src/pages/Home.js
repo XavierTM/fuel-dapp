@@ -259,6 +259,11 @@ class Home extends Component {
 
       } catch (err) {
          alert(String(err));
+
+         if (err.status === 404) {
+            return this.logout();
+         }
+
          await this.updateState({ accountFetched: false });
       } finally {
          hideLoading();

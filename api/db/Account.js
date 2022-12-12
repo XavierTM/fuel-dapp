@@ -11,6 +11,7 @@ class Account extends Model {
          },
          type: {
             type: DataTypes.ENUM('company', 'customer'),
+            defaultValue: 'customer',
             allowNull: false,
          }
       }, { sequelize });

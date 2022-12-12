@@ -83,7 +83,7 @@ suite("Business logic", function () {
         // load tokens to the previously created account
         await transferTokens({ 
             web3,
-            tokens: 100,
+            tokens: 2,
             account: process.env.MAIN_ACCOUNT,
             privateKey: process.env.MAIN_ACCOUNT_PRIVATE_KEY,
             recipient: account
@@ -116,7 +116,7 @@ suite("Business logic", function () {
         // load money into it
         const account = res.body.account;
         const privateKey = res.body.private_key;
-        const balance = 10;
+        const balance = 2;
 
         await transferTokens({
             web3,
@@ -125,14 +125,11 @@ suite("Business logic", function () {
             privateKey: process.env.MAIN_ACCOUNT_PRIVATE_KEY,
             recipient: account
         });
-        
-        // withdraw
-        const withdraw = 5;
 
         res = await requester
                 .post(`/api/accounts/${account}/withdrawal`)
                 .set('x-private-key', privateKey)
-                .send({ tokens: withdraw });
+                .send({ tokens: balance });
 
 
         assert.equal(res.status, 200);
@@ -140,7 +137,7 @@ suite("Business logic", function () {
 
         // test remaining balance
         const newBalance = await getBalance({ web3, account });
-        assert.equal(newBalance, balance - withdraw);
+        assert.equal(newBalance, 0);
 
     });
 });
