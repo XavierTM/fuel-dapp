@@ -55,10 +55,12 @@ require('dotenv').config({
 require('../env');
 
 
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+
+
 let goerli, development;
 const PRIVATE_KEY = process.env.MAIN_ACCOUNT_PRIVATE_KEY;
-const GOERLI_URL = process.env.GOERLI_URL;
-const HDWalletProvider = require('@truffle/hdwallet-provider');
+const GOERLI_URL = process.env.WEB3_URL;
 
 
 if (process.env.NODE_ENV === 'production') {

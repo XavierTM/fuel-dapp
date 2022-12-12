@@ -24,8 +24,4 @@ presenceChecker(BASE_KEYS);
 
 const CONDITIONAL_KEYS = [];
 
-if (process.env.NODE_ENV === 'production') {
-   CONDITIONAL_KEYS.push('GOERLI_URL');
-}
-
 presenceChecker(CONDITIONAL_KEYS);
