@@ -1,7 +1,9 @@
 
 
 const Tx = require('ethereumjs-tx');
+const { Transaction } = require('@ethereumjs/tx');
 const { TOKEN_CONTRACT_ABI } = require("./constants");
+const { Paynow } = require('paynow');
 const Lock = require('./Lock');
 
 const transferLock = new Lock();
@@ -57,15 +59,23 @@ async function transferTokens({
          gasLimit,
          gasPrice,
          to: tokenContractAddress,
-         value: "0x0",
+         value: "0x00",
          data: contract.methods.transferOnBehalf(account, recipient, amount).encodeABI(),
          nonce: web3.utils.toHex(count),
       }
 
-      const transaction = new Tx.Transaction(rawTransaction, { chain: 'goerli' })
-      transaction.sign(processedPrivateKey);
 
-      return await _sendSignedTransaction(web3, transaction);
+
+      // if (process.env.NODE_ENV !== 'production')
+         // rawTransaction.chainId = web3.utils.toHex(111);
+
+      const options = process.env.NODE_ENV === 'production' ? { chain: 'goerli' } : undefined;
+      // const  transaction = new Tx.Transaction(rawTransaction, options);
+      // transaction.sign(processedPrivateKey);
+      const signature = await web3.eth.signTransaction(rawTransaction, processedPrivateKey);
+      return await _sendSignedTransactionSignature(web3, signature);
+
+      // return await _sendSignedTransaction(web3, transaction);
       
    } finally {
       releaseLock();
@@ -75,10 +85,14 @@ async function transferTokens({
 }
 
 
-function _sendSignedTransaction(web3, signedTransaction) {
+function _sendSignedTransactionSignature(web3, signature) {
    return new Promise((resolve, reject) => {
+      web3.eth.sendSignedTransaction(signature, (err, hash) => {
 
-      web3.eth.sendSignedTransaction('0x' + signedTransaction.serialize().toString('hex'), (err, hash) => {
+         if (err) {
+            console.log(err);
+            process.exit()
+         }
 
          if (err)
             return reject(err);
@@ -90,6 +104,12 @@ function _sendSignedTransaction(web3, signedTransaction) {
          resolve(hash);
       });
    });
+}
+
+
+function _sendSignedTransaction(web3, signedTransaction) {
+   const signature = '0x' + signedTransaction.serialize().toString('hex');
+   return _sendSignedTransactionSignature(web3, signature);
 }
 
 
@@ -115,6 +135,33 @@ async function privateKeyToAccount({ web3, privateKey }) {
    return res.address;
 }
 
+const paynow = new Paynow(process.env.PAYNOW_ID, process.env.PAYNOW_SECRET);
+function createPaynowInstance() {
+   return paynow;
+}
+
+function processPhoneNo(phone) {
+
+	if (phone.indexOf('+263') === 0)
+		phone = phone.replace('+263', '0');
+
+	if (phone.indexOf('263') === 0)
+		phone = phone.replace('263', '0');
+
+
+	if (phone.indexOf('077') === 0)
+		return { phone, mm: 'ecocash' }
+
+	if (phone.indexOf('078') === 0)
+		return { phone, mm: 'ecocash' }
+
+	if (phone.indexOf('071') === 0)
+		return { phone, mm: 'onemoney' }
+
+	return { phone, mm: 'telecash' };
+
+}
+
 
 class TransferError extends Error {
 
@@ -129,8 +176,10 @@ class TransferError extends Error {
 }
 
 module.exports = {
+   createPaynowInstance,
    getBalance,
    getGasPrice,
+   processPhoneNo,
    privateKeyToAccount,
    transferTokens,
    TransferError,

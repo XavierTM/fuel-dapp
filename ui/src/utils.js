@@ -17,9 +17,20 @@ function deleteAccountDetails() {
    window.localStorage.removeItem(ACCOUNT_DETAILS_STORAGE_KEY);
 }
 
+function formatPrice(price) {
+   return (parseFloat(price) || 0).toFixed(2)
+}
+
+function delay(millis) {
+   return new Promise(resolve => {
+      setTimeout(resolve, millis);
+   });
+}
 
 export {
+   delay,
    deleteAccountDetails,
+   formatPrice,
    getAccountDetails,
    storeAccountDetails,
 }

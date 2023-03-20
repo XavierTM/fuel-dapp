@@ -81,8 +81,8 @@ if (process.env.NODE_ENV === 'production') {
 } else {
 
   development = {
-    host: "127.0.0.1",     // Localhost (default: none)
-    port: 8545,            // Standard Ethereum port (default: none)
+    host: process.env.GANACHE_HOST,     // Localhost (default: none)
+    port: process.env.GANACHE_PORT,            // Standard Ethereum port (default: none)
     network_id: "1234",       // Any network (default: none)
   }
 }

@@ -78,6 +78,54 @@ url: {
 body: {
    tokens: `number tokens`
 }
+```
+
+<hr>
+
+## Set current price
+`PUT /api/system/fuel-price`
+
+**expects**:
+```javascript
+headers: {
+   'x-private-key': `etherium private key`
+}
+
+
+body: {
+   fuel_price: `float`
+}
+```
+
+<hr>
+
+## Retrieve current price
+`GET /api/system/fuel-price`
+
+**returns**:
+```javascript
+body: {
+   fuel_price: `float`
+}
+```
+
+<hr>
+
+## Initiate payment
+`POST /api/payments`
+
+**expects**:
+```javascript
+body: {
+   tokens: `float`
+}
+```
+
+<hr>
+
+
+
+
 
 
 

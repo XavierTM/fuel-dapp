@@ -16,12 +16,13 @@ class AxiosError extends Error {
 }
 
 
-if (process.env.NODE_ENV === 'production') {
-   axios.interceptors.request.use(config => {
-      config.url = 'https://fuel-dapp.xavisoft.co.zw' + config.url;
-      return config;
-   });
-}
+const backend_url = process.env.NODE_ENV === 'production' ? 'https://fuel-dapp.xavisoft.co.zw' : 'http://localhost:8080';
+
+axios.interceptors.request.use(config => {
+   config.url = backend_url + config.url;
+   return config;
+});
+
 
 axios.interceptors.request.use(config => {
    
