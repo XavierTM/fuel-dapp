@@ -34,7 +34,7 @@ async function init() {
    // make main account a company
    try {
       const account = process.env.MAIN_ACCOUNT;
-      const type = 'company';
+      const type = 'admin';
 
       await Account.create({ account, type });
    } catch {}

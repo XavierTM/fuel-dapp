@@ -10,7 +10,7 @@ class Account extends Model {
             unique: true
          },
          type: {
-            type: DataTypes.ENUM('company', 'customer'),
+            type: DataTypes.ENUM('company', 'customer', 'admin'),
             defaultValue: 'customer',
             allowNull: false,
          }

@@ -97,15 +97,12 @@ export default class Dashboard extends Component {
          const buyTokensCard = { caption: 'BUY TOKENS', icon: BuyTokensIcon, action: this.openBuyTokensModal };
          const withdrawCard = { caption: 'WITHDRAW', icon: WithdrawIcon, action: this.openWithdrawalModal  }
 
-         if (this.props.data.account_type === 'company') {
-            if (this.props.data.id === 1)
-               dashboardCards = [ setPriceCard, transferTokensCard ]
-            else
-               dashboardCards = [ transferTokensCard, buyTokensCard, withdrawCard ]
-         } else {
-            dashboardCards = [ transferTokensCard, buyTokensCard ]
-         }
-
+         if (this.props.data.account_type === 'admin')
+            dashboardCards = [ setPriceCard, transferTokensCard ];
+         else if (this.props.data.account_type === 'company')
+            dashboardCards = [ transferTokensCard, buyTokensCard, withdrawCard ];
+         else
+            dashboardCards = [ transferTokensCard, buyTokensCard ];
 
          let dividerJSX;
 
