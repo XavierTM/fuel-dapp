@@ -2,12 +2,13 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton }
 import Component from "@xavisoft/react-component";
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import { successToast } from "../toast";
+import { copyToClipboard } from "../utils";
 
 
 export default class ShowPrivateKey extends Component {
 
    copyPrivateKey = async () => {
-      await navigator.clipboard.writeText(this.props.privateKey);
+      await copyToClipboard(this.props.privateKey);
       successToast('Copied to clipboard');
    }
 

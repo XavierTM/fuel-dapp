@@ -1,7 +1,6 @@
 
 
 const Tx = require('ethereumjs-tx');
-const { Transaction } = require('@ethereumjs/tx');
 const { TOKEN_CONTRACT_ABI } = require("./constants");
 const { Paynow } = require('paynow');
 const Lock = require('./Lock');
@@ -64,18 +63,17 @@ async function transferTokens({
          nonce: web3.utils.toHex(count),
       }
 
+      if (process.env.NODE_ENV === 'production') {
+         const options = { chain: 'goerli' };
+         const  transaction = new Tx.Transaction(rawTransaction, options);
+         transaction.sign(processedPrivateKey);
+         return await _sendSignedTransaction(web3, transaction);
+      } else {
+         const signature = await web3.eth.signTransaction(rawTransaction, processedPrivateKey);
+         return await _sendSignedTransactionSignature(web3, signature);
+      }
 
-
-      // if (process.env.NODE_ENV !== 'production')
-         // rawTransaction.chainId = web3.utils.toHex(111);
-
-      const options = process.env.NODE_ENV === 'production' ? { chain: 'goerli' } : undefined;
-      // const  transaction = new Tx.Transaction(rawTransaction, options);
-      // transaction.sign(processedPrivateKey);
-      const signature = await web3.eth.signTransaction(rawTransaction, processedPrivateKey);
-      return await _sendSignedTransactionSignature(web3, signature);
-
-      // return await _sendSignedTransaction(web3, transaction);
+      
       
    } finally {
       releaseLock();

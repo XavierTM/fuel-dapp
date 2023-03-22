@@ -10,7 +10,7 @@ import BuyTokensIcon from '@mui/icons-material/ShoppingCart';
 import WithdrawIcon from '@mui/icons-material/AttachMoney';
 import TransferTokens from "./TransferTokens";
 import WithdrawMoney from "./WithdrawMoney";
-import { formatPrice } from "../utils";
+import { copyToClipboard, formatPrice } from "../utils";
 import UpdatePrice from "./UpdatePrice";
 import BuyTokens from "./BuyTokens";
 import CopyIcon from '@mui/icons-material/ContentCopy';
@@ -77,7 +77,7 @@ export default class Dashboard extends Component {
    }
 
    copyAccountNumber = async () => {
-      await navigator.clipboard.writeText(this.props.data.account);
+      await copyToClipboard(this.props.data.account);
       successToast('Copied to clipboard')
    }
 

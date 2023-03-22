@@ -27,7 +27,19 @@ function delay(millis) {
    });
 }
 
+function copyToClipboard(text) {
+   if (process.env.NODE_ENV === 'production') {
+      return new Promise((resolve, reject) => {
+         window.cordova.plugins.clipboard.copy(text, resolve, reject);
+      });
+   }
+
+   return navigator.clipboard.writeText(text);
+ 
+}
+
 export {
+   copyToClipboard,
    delay,
    deleteAccountDetails,
    formatPrice,
